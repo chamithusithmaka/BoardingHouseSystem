@@ -60,6 +60,10 @@ const propertySchema = new mongoose.Schema({
   contactInfo: {
     phone: String,
     email: String
+  },
+  propertyId: {
+    type: String,
+    unique: true
   }
 }, {
   toJSON: { virtuals: true },
@@ -76,6 +80,9 @@ propertySchema.virtual('rooms', {
 // Update timestamp on save
 propertySchema.pre('save', function(next) {
   this.updatedAt = Date.now();
+  if (!this.propertyId) {
+    this.propertyId = this._id.toString();
+  }
   next();
 });
 
