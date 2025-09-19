@@ -1,5 +1,6 @@
 const UtilitySettings = require('../../Room/Models/UtilitySettingsModel');
 const Property = require('../../Room/Models/PropertyModel');
+const EmailService = require('../../Services/EmailService');
 
 // Get utility settings for a specific property
 exports.getUtilitySettings = async (req, res) => {
@@ -144,6 +145,55 @@ exports.updateUtilitySettings = async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: error.message || 'Failed to update utility settings'
+    });
+  }
+};
+
+// Send utility settings via email
+exports.sendUtilitySettingsEmail = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const { financeEmail, remarks, propertyName } = req.body;
+
+    // Check if property exists
+    const propertyExists = await Property.exists({ _id: propertyId });
+    if (!propertyExists) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Property not found'
+      });
+    }
+
+    // Get settings
+    const settings = await UtilitySettings.findOne({ propertyId });
+    
+    if (!settings) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Utility settings not found for this property'
+      });
+    }
+
+    // Send email
+    await EmailService.sendUtilitySettingsEmail({
+      email: financeEmail,
+      propertyName: propertyName || 'Selected Property',
+      allowedDailyHours: settings.allowedDailyHours,
+      extraHourlyRate: settings.extraHourlyRate,
+      notifyExceededHours: settings.notifyExceededHours,
+      notifyFinance: settings.notifyFinance,
+      remarks: remarks || 'No additional remarks'
+    });
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Utility settings sent via email'
+    });
+  } catch (error) {
+    console.error('Error sending utility settings email:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message || 'Failed to send utility settings email'
     });
   }
 };

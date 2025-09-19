@@ -591,6 +591,280 @@ class EmailService {
       throw error;
     }
   }
+
+  /**
+   * Send utility settings to finance department
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.propertyName - Property name
+   * @param {number} options.allowedDailyHours - Allowed daily hours
+   * @param {number} options.extraHourlyRate - Extra hourly rate
+   * @param {boolean} options.notifyExceededHours - Whether to notify tenants
+   * @param {boolean} options.notifyFinance - Whether to notify finance
+   * @param {string} options.remarks - Additional remarks
+   * @returns {Promise<Object>} - Nodemailer send result
+   */
+  async sendUtilitySettingsEmail({ email, propertyName, allowedDailyHours, extraHourlyRate, notifyExceededHours, notifyFinance, remarks }) {
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Utility Settings Configuration - ${propertyName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #3498db; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Utility Settings Configuration</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear Finance Department,</p>
+            <p>The utility settings for <strong>${propertyName}</strong> have been configured as follows:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr style="background-color: #f8f9fa;">
+                <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Setting</th>
+                <th style="text-align: left; padding: 10px; border: 1px solid #ddd;">Value</th>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Allowed Daily Hours</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${allowedDailyHours} hours</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Extra Hourly Rate</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">LKR ${extraHourlyRate.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Notify Tenants on Excess</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${notifyExceededHours ? 'Yes' : 'No'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">Notify Finance Department</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">${notifyFinance ? 'Yes' : 'No'}</td>
+              </tr>
+            </table>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 15px; margin-top: 20px;">
+              <strong>Additional Remarks:</strong>
+              <p style="margin-top: 10px;">${remarks}</p>
+            </div>
+            
+            <p style="margin-top: 20px;">Please update your records accordingly. If you have any questions, please contact the administrator.</p>
+            
+            <p>Thank you,<br>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message from the Boarding House System.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Utility settings email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending utility settings email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send room request confirmation email to user
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - Tenant name
+   * @param {string} options.roomId - Room identifier
+   * @param {Date} options.requestDate - Request date
+   * @param {Date} options.moveInDate - Requested move-in date
+   * @returns {Promise<void>}
+   */
+  async sendRoomRequestConfirmation({ email, name, roomId, roomNumber, requestDate, moveInDate }) {
+    // Format dates
+    const formattedRequestDate = requestDate 
+      ? new Date(requestDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+    
+    const formattedMoveInDate = moveInDate 
+      ? new Date(moveInDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : 'Not specified';
+
+    // Email content
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Room Request Confirmation`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #f39c12; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Room Request Confirmation</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>Thank you for submitting a room request. We have received your application for ${roomNumber || roomId || 'the requested room'}.</p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #f39c12; padding: 15px; margin: 20px 0;">
+              <p style="margin: 5px 0;"><strong>Request Date:</strong> ${formattedRequestDate}</p>
+              <p style="margin: 5px 0;"><strong>Requested Move-In Date:</strong> ${formattedMoveInDate}</p>
+            </div>
+            
+            <p>Your request is currently being reviewed by our administrators. You will receive an email notification when a decision has been made.</p>
+            <p>If you have any questions or need to update your request details, please contact our administrative office.</p>
+            <p>Thank you for choosing our boarding house.</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Room request confirmation email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending room request confirmation email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send room request approval notification
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - Tenant name
+   * @param {string} options.roomId - Room identifier
+   * @param {string} options.propertyName - Property name
+   * @param {Date} options.moveInDate - Move-in date
+   * @param {string} options.message - Admin message
+   * @returns {Promise<void>}
+   */
+  async sendRoomRequestApprovalEmail({ email, name, roomId, roomNumber, propertyName, moveInDate, message }) {
+    // Format move-in date
+    const formattedDate = moveInDate 
+      ? new Date(moveInDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })
+      : 'as soon as possible';
+
+    // Email content
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Your Room Request Has Been Approved`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #2ecc71; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Room Request Approved</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>We're pleased to inform you that your request for room <strong>${roomNumber || roomId}</strong> at <strong>${propertyName || 'our property'}</strong> has been approved!</p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #2ecc71; padding: 15px; margin: 20px 0;">
+              <p style="margin: 5px 0;"><strong>Room:</strong> ${roomNumber || roomId}</p>
+              <p style="margin: 5px 0;"><strong>Move-in Date:</strong> ${formattedDate}</p>
+              ${message ? `<p style="margin: 10px 0;"><strong>Message:</strong> ${message}</p>` : ''}
+            </div>
+            
+            <p>Please ensure you bring the following on your move-in date:</p>
+            <ul>
+              <li>Valid ID</li>
+              <li>First month's payment</li>
+              <li>Security deposit (if applicable)</li>
+            </ul>
+            
+            <p>If you have any questions or need assistance with your move-in, please don't hesitate to contact us.</p>
+            <p>We look forward to welcoming you!</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Room request approval email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending room request approval email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send room request rejection email
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - Tenant name
+   * @param {string} options.roomId - Room identifier
+   * @param {string} options.message - Admin message
+   * @returns {Promise<void>}
+   */
+  async sendRoomRequestRejectedEmail({ email, name, roomId, roomNumber, message }) {
+    // Email content
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Your Room Request Status`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #e74c3c; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Room Request Update</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>We have reviewed your request for room <strong>${roomNumber || roomId}</strong>.</p>
+            <p>Unfortunately, we are unable to approve your request at this time.</p>
+            
+            <div style="background-color: #f8f9fa; border-left: 4px solid #e74c3c; padding: 15px; margin: 20px 0;">
+              ${message ? `<p style="margin: 5px 0;"><strong>Reason:</strong> ${message}</p>` : ''}
+            </div>
+            
+            <p>If you have any questions or would like to submit a request for a different room, please feel free to contact us.</p>
+            <p>Thank you for your understanding.</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Room request rejection email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending room request rejection email:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new EmailService();

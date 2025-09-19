@@ -46,7 +46,7 @@ exports.createRoomRequest = async (req, res) => {
   try {
     const { userId, roomId, name, email, phone, photo, reason, notes, moveInDate } = req.body;
     
-    // Create the room request with the hardcoded user data from context
+    // Create the room request with the user data from the form
     const request = await RoomRequest.create({
       userId,
       roomId,
@@ -60,6 +60,36 @@ exports.createRoomRequest = async (req, res) => {
       requestDate: new Date(),
       status: 'pending'
     });
+    
+    // Get room details to include in the email
+    const room = await Room.findById(roomId);
+    let roomNumber = 'Room';
+    let propertyName = 'Property';
+    
+    if (room) {
+      roomNumber = room.roomNumber || room.roomId || 'Room';
+      if (room.property) {
+        // If property is populated, use its name
+        propertyName = room.property.name || 'Property';
+      }
+    }
+    
+    // Send confirmation email
+    if (email) {
+      try {
+        await emailService.sendRoomRequestConfirmation({
+          email,
+          name,
+          roomId,
+          roomNumber,
+          requestDate: new Date(),
+          moveInDate
+        });
+      } catch (emailError) {
+        console.error('Error sending room request confirmation email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
     
     res.status(201).json({
       status: 'success',
@@ -144,8 +174,7 @@ exports.updateRoomRequest = async (req, res) => {
 // Approve room request
 exports.approveRoomRequest = async (req, res) => {
   try {
-    // Change this line from requestId to id
-    const { id } = req.params;  // Use id instead of requestId
+    const { id } = req.params;
     const { message } = req.body;
     
     // Get the request
@@ -158,7 +187,7 @@ exports.approveRoomRequest = async (req, res) => {
     }
     
     // Get the room
-    const room = await Room.findById(request.roomId);
+    const room = await Room.findById(request.roomId).populate('property');
     if (!room) {
       return res.status(404).json({
         status: 'fail',
@@ -175,9 +204,8 @@ exports.approveRoomRequest = async (req, res) => {
     }
     
     // Create tenant object with _id field explicitly set
-    // IMPORTANT FIX: Make sure userId exists and is set as _id
     const tenant = {
-      _id: request.userId || `user_${Date.now()}`, // Use userId or generate a fallback
+      _id: request.userId || `user_${Date.now()}`,
       name: request.name,
       email: request.email,
       phone: request.phone,
@@ -208,6 +236,24 @@ exports.approveRoomRequest = async (req, res) => {
       responseDate: new Date()
     };
     await request.save();
+    
+    // Send approval email to tenant
+    if (request.email) {
+      try {
+        await emailService.sendRoomRequestApprovalEmail({
+          email: request.email,
+          name: request.name,
+          roomId: room._id,
+          roomNumber: room.roomNumber || room.roomId,
+          propertyName: room.property ? room.property.name : 'our property',
+          moveInDate: request.moveInDate,
+          message: request.adminResponse.message
+        });
+      } catch (emailError) {
+        console.error('Error sending room request approval email:', emailError);
+        // Don't fail the request if email fails
+      }
+    }
     
     res.status(200).json({
       status: 'success',

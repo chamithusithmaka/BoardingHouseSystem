@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AddPropertyModal from '../../Components/Properties/AddPropertyModal';
 import EditPropertyModal from '../../Components/Properties/EditPropertyModal';
+import { ComprehensiveReportButton } from '../../../Components/Reports/PropertyReportGenerator';
 
 // Base API URL
 const API_URL = 'http://localhost:5000/api';
@@ -231,12 +232,18 @@ const PropertyList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center w-full md:w-auto justify-center"
-        >
-          <FaPlus className="mr-2" /> Add Property
-        </button>
+        <div className="flex gap-2">
+          <ComprehensiveReportButton 
+            properties={properties}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center"
+          />
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center"
+          >
+            <FaPlus className="mr-2" /> Add Property
+          </button>
+        </div>
       </div>
 
       {/* Property Grid */}

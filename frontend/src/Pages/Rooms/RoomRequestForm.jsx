@@ -54,10 +54,12 @@ const RoomRequestForm = ({ room, onSuccess, onCancel }) => {
     setError(null);
 
     try {
-      // Format the data for the API with the hardcoded user ID from context
+      // Format the data for the API
       const requestData = {
         ...formData,
-        userId: user.id, // This is the hardcoded ID from context (user456)
+        userId: user.id,
+        // Use the email from the form input, not from context
+        email: formData.email, // This ensures we use what the user typed
         roomId: room.id,
         requestDate: new Date(),
       };

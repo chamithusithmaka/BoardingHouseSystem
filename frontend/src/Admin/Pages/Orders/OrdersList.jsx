@@ -353,7 +353,7 @@ const OrdersList = () => {
                   <tr key={order._id} className="hover:bg-gray-750">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-white">
-                        #{order._id.substring(order._id.length - 6)}
+                        {order.orderId || `#${order._id.substring(order._id.length - 6)}`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -404,7 +404,7 @@ const OrdersList = () => {
         <Modal
           isOpen={showOrderDetailsModal}
           onClose={() => setShowOrderDetailsModal(false)}
-          title={`Order #${selectedOrder._id.substring(selectedOrder._id.length - 6)}`}
+          title={`Order ${selectedOrder.orderId || '#' + selectedOrder._id.substring(selectedOrder._id.length - 6)}`}
           size="lg"
         >
           <div className="max-h-[80vh] overflow-y-auto p-2 md:p-4">
@@ -557,7 +557,7 @@ const OrdersList = () => {
             )}
             
             {/* Action Buttons */}
-            <div className="border-t border-gray-700 pt-4 mt-4">
+            {/* <div className="border-t border-gray-700 pt-4 mt-4">
               <h3 className="text-sm font-medium text-gray-400 mb-2 uppercase">Update Status</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedOrder.status !== 'CANCELLED' && (
@@ -616,7 +616,7 @@ const OrdersList = () => {
                   </span>
                 )}
               </div>
-            </div>
+            </div> */}
           </div>
         </Modal>
       )}

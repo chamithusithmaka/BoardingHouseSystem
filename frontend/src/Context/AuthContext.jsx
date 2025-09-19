@@ -8,7 +8,7 @@ const TEMP_USER = {
   //user456
   id: 'user123',
   name: 'Chamithu Sithmaka',
-  email: 'chamith@example.com',
+  email: 'user123456@gmail.com',
   role: 'tenant', // tenant role for regular user
   location: 'Colombo, Sri Lanka',
   avatar: 'https://randomuser.me/api/portraits/men/85.jpg'

@@ -20,10 +20,15 @@ const statusHistorySchema = new mongoose.Schema({
 }, { _id: false });
 
 const orderSchema = new mongoose.Schema({
+  orderId: {
+    type: String,
+    unique: true,
+    index: true
+  },
   contactName: { type: String, required: true },
   contactPhone: { type: String, required: true, index: true },
   roomNo: String,
-  userId: { type: String, required: true, index: true }, // <-- Add this line
+  userId: { type: String, required: true, index: true },
 
   supplierId: { type: String}, // null until accepted
   status: { type: String, enum: orderStatuses, default: 'PLACED', index: true },
@@ -38,8 +43,14 @@ const orderSchema = new mongoose.Schema({
   histories: [statusHistorySchema]
 }, { timestamps: true });
 
-/** Auto-calc totals before save (creation & item edits) */
-orderSchema.pre('save', function(next) {
+// Auto-generate orderId if not present
+orderSchema.pre('save', async function(next) {
+  if (!this.orderId) {
+    // Generate a simple incremental order number (not guaranteed to be gapless)
+    const Order = this.constructor;
+    const count = await Order.countDocuments();
+    this.orderId = `ORD-${1000 + count + 1}`;
+  }
   if (this.isModified('items') || this.isNew) {
     const subtotal = (this.items || []).reduce((sum, it) => sum + (it.lineTotalCents || 0), 0);
     this.subtotalCents = subtotal;

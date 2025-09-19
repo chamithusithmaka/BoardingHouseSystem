@@ -92,9 +92,26 @@ const AttendanceDashboard = () => {
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
   
-  // Handle date range changes
+  // Handle date range changes with validation
   const handleDateChange = (e) => {
     const { name, value } = e.target;
+    
+    // When changing start date, ensure end date is not before it
+    if (name === 'startDate' && value > dateRange.endDate) {
+      setDateRange({
+        startDate: value,
+        endDate: value // Set end date equal to start date if it would be invalid
+      });
+      return;
+    }
+    
+    // When changing end date, ensure it's not before start date
+    if (name === 'endDate' && value < dateRange.startDate) {
+      // Don't allow invalid selection
+      return;
+    }
+    
+    // Otherwise, update normally
     setDateRange(prev => ({
       ...prev,
       [name]: value
@@ -195,6 +212,8 @@ const AttendanceDashboard = () => {
                 name="startDate"
                 value={dateRange.startDate}
                 onChange={handleDateChange}
+                // Optional: set max to prevent selecting future dates
+                max={new Date().toISOString().split('T')[0]} 
                 className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
               />
             </div>
@@ -206,6 +225,9 @@ const AttendanceDashboard = () => {
                 name="endDate"
                 value={dateRange.endDate}
                 onChange={handleDateChange}
+                min={dateRange.startDate} // This prevents selecting dates before start date
+                // Optional: set max to prevent selecting future dates
+                max={new Date().toISOString().split('T')[0]}
                 className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
               />
             </div>

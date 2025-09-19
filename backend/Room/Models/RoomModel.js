@@ -36,14 +36,14 @@ const tenantSchema = new mongoose.Schema({
 const roomSchema = new mongoose.Schema({
   roomId: {
     type: String,
-    required: [true, 'Room ID is required'],
+
     unique: true,
     trim: true
   },
-  roomNumber: {
+  roomNo: {
     type: String,
-    required: [true, 'Room number is required'],
-    trim: true
+    unique: true,  // Add this line to explicitly declare it's unique 
+
   },
   property: {
     type: mongoose.Schema.Types.ObjectId,

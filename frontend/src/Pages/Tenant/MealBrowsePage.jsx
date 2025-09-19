@@ -158,7 +158,7 @@ const MealBrowsePage = () => {
 
   // Format price from cents to dollars
   const formatPrice = (cents) => {
-    return `$${(cents / 100).toFixed(2)}`;
+    return `LKR:${(cents / 100).toFixed(2)}`;
   };
 
   // Format date

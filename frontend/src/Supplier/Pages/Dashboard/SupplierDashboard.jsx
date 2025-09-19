@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   FaSpinner, FaCheckCircle, FaTimesCircle, FaTruck, 
   FaUtensils, FaClock, FaExclamationTriangle, FaUser, FaPhoneAlt,
-  FaPaperPlane
+  FaPaperPlane, FaListAlt, FaChartBar, FaEnvelope
 } from 'react-icons/fa';
 import Header from '../../../Components/Layout/Header';
 import Footer from '../../../Components/Layout/Footer';
@@ -33,6 +33,9 @@ const SupplierDashboard = () => {
     message: '',
     recipientEmail: ''
   });
+  
+  // Active section state
+  const [activeSection, setActiveSection] = useState('orders');
 
   // Fetch all orders
   useEffect(() => {
@@ -99,7 +102,7 @@ const SupplierDashboard = () => {
 
   // Format price from cents to dollars
   const formatPrice = (cents) => {
-    return `$${(cents / 100).toFixed(2)}`;
+    return `LKR ${(cents / 100).toFixed(2)}`;
   };
 
   // Format date
@@ -124,153 +127,149 @@ const SupplierDashboard = () => {
         return <span className="bg-gray-500 text-white px-2 py-1 rounded-full text-xs">{status}</span>;
     }
   };
-
-  return (
-    <>
-      <Header />
-      <main className="bg-gray-900 text-white min-h-screen py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8 flex items-center">
-            <FaUtensils className="mr-3 text-amber-500" />
-            Supplier Dashboard
-          </h1>
-
-          {/* Existing content */}
-          {error && (
-            <div className="bg-red-900/30 border border-red-800 rounded-md p-4 mb-6 text-red-400 flex items-center">
-              <FaExclamationTriangle className="mr-2 flex-shrink-0" />
-              <span>{error}</span>
-              <button 
-                onClick={() => setError(null)} 
-                className="ml-auto text-red-400 hover:text-red-300"
-              >
-                &times;
-              </button>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <FaSpinner className="text-amber-500 text-4xl animate-spin" />
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="bg-gray-800 rounded-lg p-10 text-center">
-              <div className="bg-gray-700 rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
-                <FaCheckCircle className="text-gray-500 text-3xl" />
+  
+  // Navigation section renderer
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'orders':
+        return (
+          <>
+            {error && (
+              <div className="bg-red-900/30 border border-red-800 rounded-md p-4 mb-6 text-red-400 flex items-center">
+                <FaExclamationTriangle className="mr-2 flex-shrink-0" />
+                <span>{error}</span>
+                <button 
+                  onClick={() => setError(null)} 
+                  className="ml-auto text-red-400 hover:text-red-300"
+                >
+                  &times;
+                </button>
               </div>
-              <h3 className="text-xl font-medium text-white mb-2">No Orders</h3>
-              <p className="text-gray-400">
-                There are currently no orders to manage.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {orders.map(order => (
-                <div key={order._id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
-                  {/* Order Header */}
-                  <div className="bg-gray-750 p-4 flex justify-between items-center">
-                    <div>
-                      <div className="text-sm text-gray-400">
-                        Order #{order._id.substring(order._id.length - 6)}
-                      </div>
-                      <div className="text-white font-medium">
-                        {formatDate(order.createdAt)}
-                      </div>
-                    </div>
-                    <div>{getStatusBadge(order.status)}</div>
-                  </div>
+            )}
 
-                  {/* Order Content */}
-                  <div className="p-4">
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-400">Customer</div>
-                      <div className="text-white">{order.contactName}</div>
-                      <div className="text-gray-400 text-sm">{order.contactPhone}</div>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-400">Delivery Location</div>
-                      <div className="text-white">Room {order.roomNo || 'N/A'}</div>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-400">Order Summary</div>
-                      <div className="text-white">{order.items.length} items</div>
-                      <div className="font-medium text-amber-500">{formatPrice(order.totalCents)}</div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="p-4 border-t border-gray-700 bg-gray-750">
-                    <div className="grid grid-cols-2 gap-3">
-                      {order.status === 'PLACED' && (
-                        <button
-                          onClick={() => updateOrderStatus(order._id, 'ACCEPTED')}
-                          disabled={actionLoading}
-                          className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md flex items-center justify-center"
-                        >
-                          <FaCheckCircle className="mr-2" />
-                          Accept Order
-                        </button>
-                      )}
-
-                      {order.status === 'ACCEPTED' && (
-                        <button
-                          onClick={() => updateOrderStatus(order._id, 'PREPARING')}
-                          disabled={actionLoading}
-                          className="bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md flex items-center justify-center"
-                        >
-                          <FaUtensils className="mr-2" />
-                          Start Preparing
-                        </button>
-                      )}
-
-                      {order.status === 'PREPARING' && (
-                        <button
-                          onClick={() => updateOrderStatus(order._id, 'OUT_FOR_DELIVERY')}
-                          disabled={actionLoading}
-                          className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md flex items-center justify-center"
-                        >
-                          <FaTruck className="mr-2" />
-                          Out for Delivery
-                        </button>
-                      )}
-
-                      {order.status === 'OUT_FOR_DELIVERY' && (
-                        <button
-                          onClick={() => updateOrderStatus(order._id, 'DELIVERED')}
-                          disabled={actionLoading}
-                          className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-md flex items-center justify-center"
-                        >
-                          <FaCheckCircle className="mr-2" />
-                          Mark as Delivered
-                        </button>
-                      )}
-
-                      {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
-                        <button
-                          onClick={() => updateOrderStatus(order._id, 'CANCELLED')}
-                          disabled={actionLoading}
-                          className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-md flex items-center justify-center"
-                        >
-                          <FaTimesCircle className="mr-2" />
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </div>
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <FaSpinner className="text-amber-500 text-4xl animate-spin" />
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-gray-800 rounded-lg p-10 text-center">
+                <div className="bg-gray-700 rounded-full h-20 w-20 flex items-center justify-center mx-auto mb-4">
+                  <FaCheckCircle className="text-gray-500 text-3xl" />
                 </div>
-              ))}
-            </div>
-          )}
+                <h3 className="text-xl font-medium text-white mb-2">No Orders</h3>
+                <p className="text-gray-400">
+                  There are currently no orders to manage.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {orders.map(order => (
+                  <div key={order._id} className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+                    {/* Order Header */}
+                    <div className="bg-gray-750 p-4 flex justify-between items-center">
+                      <div>
+                        <div className="text-sm text-gray-400">
+                          Order #{order._id.substring(order._id.length - 6)}
+                        </div>
+                        <div className="text-white font-medium">
+                          {formatDate(order.createdAt)}
+                        </div>
+                      </div>
+                      <div>{getStatusBadge(order.status)}</div>
+                    </div>
 
-          {/* Report Generator Section */}
-          <div className="mt-12">
-            <ReportGenerator />
-          </div>
+                    {/* Order Content */}
+                    <div className="p-4">
+                      <div className="mb-4">
+                        <div className="text-sm text-gray-400">Customer</div>
+                        <div className="text-white">{order.contactName}</div>
+                        <div className="text-gray-400 text-sm">{order.contactPhone}</div>
+                      </div>
 
-          {/* Notification Section */}
-          <div className="mt-12 bg-gray-800 rounded-lg p-6 border border-gray-700">
+                      <div className="mb-4">
+                        <div className="text-sm text-gray-400">Delivery Location</div>
+                        <div className="text-white">Room {order.roomNo || 'N/A'}</div>
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="text-sm text-gray-400">Order Summary</div>
+                        <div className="text-white">{order.items.length} items</div>
+                        <div className="font-medium text-amber-500">{formatPrice(order.totalCents)}</div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="p-4 border-t border-gray-700 bg-gray-750">
+                      <div className="grid grid-cols-2 gap-3">
+                        {order.status === 'PLACED' && (
+                          <button
+                            onClick={() => updateOrderStatus(order._id, 'ACCEPTED')}
+                            disabled={actionLoading}
+                            className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md flex items-center justify-center"
+                          >
+                            <FaCheckCircle className="mr-2" />
+                            Accept Order
+                          </button>
+                        )}
+
+                        {order.status === 'ACCEPTED' && (
+                          <button
+                            onClick={() => updateOrderStatus(order._id, 'PREPARING')}
+                            disabled={actionLoading}
+                            className="bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-md flex items-center justify-center"
+                          >
+                            <FaUtensils className="mr-2" />
+                            Start Preparing
+                          </button>
+                        )}
+
+                        {order.status === 'PREPARING' && (
+                          <button
+                            onClick={() => updateOrderStatus(order._id, 'OUT_FOR_DELIVERY')}
+                            disabled={actionLoading}
+                            className="bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md flex items-center justify-center"
+                          >
+                            <FaTruck className="mr-2" />
+                            Out for Delivery
+                          </button>
+                        )}
+
+                        {order.status === 'OUT_FOR_DELIVERY' && (
+                          <button
+                            onClick={() => updateOrderStatus(order._id, 'DELIVERED')}
+                            disabled={actionLoading}
+                            className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-md flex items-center justify-center"
+                          >
+                            <FaCheckCircle className="mr-2" />
+                            Mark as Delivered
+                          </button>
+                        )}
+
+                        {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
+                          <button
+                            onClick={() => updateOrderStatus(order._id, 'CANCELLED')}
+                            disabled={actionLoading}
+                            className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-md flex items-center justify-center"
+                          >
+                            <FaTimesCircle className="mr-2" />
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        );
+      case 'meals':
+        return <MealsList userRole="supplier" />;
+      case 'reports':
+        return <ReportGenerator />;
+      case 'notifications':
+        return (
+          <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <FaPaperPlane className="mr-3 text-amber-500" />
               Send Notification
@@ -363,10 +362,62 @@ const SupplierDashboard = () => {
               </div>
             </form>
           </div>
+        );
+      default:
+        return null;
+    }
+  };
 
-          {/* Meals List Section */}
-          <div className="mt-12">
-            <MealsList />
+  return (
+    <>
+      <Header />
+      <main className="bg-gray-900 text-white min-h-screen py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold mb-4 md:mb-0 flex items-center">
+              <FaUtensils className="mr-3 text-amber-500" />
+              Supplier Dashboard
+            </h1>
+            
+            {/* Navigation Tabs */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button 
+                className={`px-4 py-2 rounded-md flex items-center ${activeSection === 'orders' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                onClick={() => setActiveSection('orders')}
+              >
+                <FaListAlt className="mr-2" />
+                Orders
+              </button>
+              
+              <button 
+                className={`px-4 py-2 rounded-md flex items-center ${activeSection === 'meals' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                onClick={() => setActiveSection('meals')}
+              >
+                <FaUtensils className="mr-2" />
+                Meals
+              </button>
+              
+              <button 
+                className={`px-4 py-2 rounded-md flex items-center ${activeSection === 'reports' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                onClick={() => setActiveSection('reports')}
+              >
+                <FaChartBar className="mr-2" />
+                Reports
+              </button>
+              
+              <button 
+                className={`px-4 py-2 rounded-md flex items-center ${activeSection === 'notifications' ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                onClick={() => setActiveSection('notifications')}
+              >
+                <FaEnvelope className="mr-2" />
+                Notifications
+              </button>
+            </div>
+          </div>
+          
+          {/* Active Section Content */}
+          <div className="mb-12">
+            {renderSection()}
           </div>
         </div>
       </main>

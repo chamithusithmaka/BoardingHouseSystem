@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
   FaCog, FaClock, FaArrowLeft, FaSpinner, 
-  FaSave, FaBell, FaEnvelope, FaDollarSign
+  FaSave, FaBell, FaEnvelope, FaDollarSign,
+  FaPaperPlane, FaExclamationTriangle, FaCheckCircle
 } from 'react-icons/fa';
 
 // Base API URL
@@ -13,7 +14,9 @@ const UtilitySettingsPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState('');
   const [settings, setSettings] = useState({
@@ -112,6 +115,53 @@ const UtilitySettingsPage = () => {
     }
   };
 
+  // Handle sending settings via email
+  const handleSendEmail = async () => {
+    if (!selectedProperty) {
+      alert('Please select a property');
+      return;
+    }
+
+    if (!settings.financeEmail) {
+      alert('Please enter finance email address');
+      return;
+    }
+    
+    try {
+      setSending(true);
+      setError(null);
+      setSuccess(null);
+      
+      const property = properties.find(p => p._id === selectedProperty);
+      const propertyName = property ? property.name : 'Selected Property';
+      
+      await axios.post(`${API_URL}/utility-settings/${selectedProperty}/send-email`, {
+        financeEmail: settings.financeEmail,
+        remarks: settings.remarks,
+        propertyName
+      });
+      
+      setSuccess('Utility settings have been sent to finance department.');
+      setSending(false);
+    } catch (err) {
+      console.error('Error sending utility settings via email:', err);
+      setError('Failed to send settings. Please try again.');
+      setSending(false);
+    }
+  };
+
+  // Clear notifications after a delay
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [success, error]);
+
   return (
     <>
       <div className="container mx-auto px-4 py-8">
@@ -129,6 +179,33 @@ const UtilitySettingsPage = () => {
             Back to Dashboard
           </button>
         </div>
+        
+        {/* Status Messages */}
+        {success && (
+          <div className="mb-6 bg-green-900/30 border border-green-800 rounded-lg p-4 flex items-center text-green-400">
+            <FaCheckCircle className="mr-2 flex-shrink-0" />
+            <span>{success}</span>
+            <button 
+              className="ml-auto text-green-500 hover:text-green-400"
+              onClick={() => setSuccess(null)}
+            >
+              &times;
+            </button>
+          </div>
+        )}
+        
+        {error && (
+          <div className="mb-6 bg-red-900/30 border border-red-800 rounded-lg p-4 flex items-center text-red-400">
+            <FaExclamationTriangle className="mr-2 flex-shrink-0" />
+            <span>{error}</span>
+            <button 
+              className="ml-auto text-red-500 hover:text-red-400"
+              onClick={() => setError(null)}
+            >
+              &times;
+            </button>
+          </div>
+        )}
         
         <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
           {loading ? (
@@ -307,25 +384,80 @@ const UtilitySettingsPage = () => {
                     />
                   </div>
                   
-                  {/* Submit Button */}
-                  <div className="mt-8">
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
-                    >
-                      {saving ? (
-                        <>
-                          <FaSpinner className="animate-spin mr-2" />
-                          Saving Changes...
-                        </>
-                      ) : (
-                        <>
-                          <FaSave className="mr-2" />
-                          Save Settings
-                        </>
-                      )}
-                    </button>
+                  {/* Finance Email and Send Button */}
+                  <div className="mt-8 bg-gray-750 rounded-lg border border-gray-700 p-5">
+                    <h3 className="text-xl font-semibold mb-4 text-white flex items-center">
+                      <FaEnvelope className="mr-2 text-amber-500" />
+                      Send Utility Settings to Finance Department
+                    </h3>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-300 mb-2 font-medium">
+                        Finance Department Email
+                      </label>
+                      <input
+                        type="email"
+                        name="financeEmail"
+                        value={settings.financeEmail}
+                        onChange={handleChange}
+                        className="bg-gray-700 border border-gray-600 rounded w-full py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        placeholder="finance@example.com"
+                      />
+                    </div>
+                    
+                    <div className="mb-4">
+                      <label className="block text-gray-300 mb-2 font-medium">
+                        Additional Remarks
+                      </label>
+                      <textarea
+                        name="remarks"
+                        value={settings.remarks}
+                        onChange={handleChange}
+                        rows="3"
+                        className="bg-gray-700 border border-gray-600 rounded w-full py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        placeholder="Any additional notes for the finance department..."
+                      />
+                    </div>
+                    
+                    <div className="flex justify-between items-center mt-6">
+                      <button
+                        type="button"
+                        onClick={handleSendEmail}
+                        disabled={sending || !settings.financeEmail}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {sending ? (
+                          <>
+                            <FaSpinner className="animate-spin mr-2" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <FaPaperPlane className="mr-2" />
+                            Send to Finance Department
+                          </>
+                        )}
+                      </button>
+                      
+                      {/* Submit button for saving */}
+                      <button
+                        type="submit"
+                        disabled={saving}
+                        className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {saving ? (
+                          <>
+                            <FaSpinner className="animate-spin mr-2" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <FaSave className="mr-2" />
+                            Save Settings
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
