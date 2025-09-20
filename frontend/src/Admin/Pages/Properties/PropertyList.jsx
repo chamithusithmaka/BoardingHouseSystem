@@ -291,7 +291,7 @@ const PropertyList = () => {
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <p className="text-gray-300 mr-2">
-                    Rooms: <span className="font-semibold">{property.occupiedRooms}/{property.totalRooms}</span>
+                    Rooms: <span className="font-semibold">{property.totalRooms}</span>
                   </p>
                   <button 
                     onClick={(e) => {
