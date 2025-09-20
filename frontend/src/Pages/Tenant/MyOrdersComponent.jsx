@@ -224,9 +224,9 @@ const MyOrdersComponent = ({ user, room }) => {
                     {getStatusIcon(order.status)}
                   </div>
                   <div>
-                    <div className="text-white font-medium">
-                      Order #{order._id.substring(order._id.length - 6)}
-                    </div>
+                    <div className="text-sm text-gray-400">
+  Order {order.orderId || `#${order._id.substring(order._id.length - 6)}`}
+</div>
                     <div className="text-gray-400 text-sm">
                       {formatDate(order.createdAt)}
                     </div>

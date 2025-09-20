@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { 
   FaUtensils, FaShoppingCart, FaPlus, FaMinus, 
@@ -15,6 +15,7 @@ const API_URL = 'http://localhost:5000/api';
 
 const MealCheckoutPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,7 @@ const MealCheckoutPage = () => {
   const [contactInfo, setContactInfo] = useState({
     contactName: user?.name || '',
     contactPhone: user?.phone || '',
-    roomNo: '',
+    roomNo: location.state?.roomNo || '', // Use roomNo from navigation state if available
     notes: ''
   });
 
@@ -39,6 +40,27 @@ const MealCheckoutPage = () => {
     
     setCart(JSON.parse(savedCart));
   }, [navigate]);
+
+  // Auto-fill room number from user's assigned room
+  useEffect(() => {
+    // Only fetch if roomNo is not already set
+    if (contactInfo.roomNo || !user?.id) return;
+    const fetchRoomNumber = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/rooms/user/${user.id}/room`);
+        const roomNumber = response.data?.data?.room?.roomNumber;
+        if (roomNumber) {
+          setContactInfo(prev => ({
+            ...prev,
+            roomNo: roomNumber
+          }));
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
+    };
+    fetchRoomNumber();
+  }, [user?.id, contactInfo.roomNo]);
 
   // Handle contact info changes
   const handleContactInfoChange = (e) => {
@@ -349,7 +371,7 @@ const MealCheckoutPage = () => {
                         className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:border-amber-500 focus:outline-none"
                         placeholder="Your room number"
                         required
-                        disabled={loading}
+                        disabled
                       />
                     </div>
                     

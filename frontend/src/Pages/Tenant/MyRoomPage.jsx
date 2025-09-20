@@ -35,6 +35,10 @@ const MyRoomPage = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [utilitySettings, setUtilitySettings] = useState(null);
+  const [contactInfo, setContactInfo] = useState({
+    roomNo: ''
+    // ...other fields if needed
+  });
 
   // Fetch user's room
   useEffect(() => {
@@ -51,6 +55,14 @@ const MyRoomPage = () => {
         
         setRoom(response.data.data.room);
         setTenant(response.data.data.tenant);
+
+        // Auto-fill room number in contactInfo if available
+        if (response.data.data.room && response.data.data.room.roomNumber) {
+          setContactInfo(prev => ({
+            ...prev,
+            roomNo: response.data.data.room.roomNumber
+          }));
+        }
         
         // Fetch utility settings for the property
         if (response.data.data.room && response.data.data.room.property && response.data.data.room.property._id) {
@@ -398,6 +410,7 @@ const MyRoomPage = () => {
                         {/* Order Meal Button */}
                         <Link
                           to="/account/meals"
+                          state={{ roomNo: room.roomNumber }} // Pass room number in navigation state
                           className="flex items-center justify-center p-4 rounded-md transition-colors bg-green-600 hover:bg-green-700 text-white"
                         >
                           <FaUtensils className="mr-3" />

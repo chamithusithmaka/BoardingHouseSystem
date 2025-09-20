@@ -115,12 +115,12 @@ const OrdersReport = ({ orders }) => {
   return (
     <>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Order Summary</Text>
-        <Text style={styles.item}>Total Orders: {orders.length}</Text>
-        <Text style={styles.item}>Total Revenue: LKR {(totalRevenue / 100).toFixed(2)}</Text>
+        <Text style={[styles.sectionTitle, { marginBottom: 8 }]}>Order Summary</Text>
+        <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>Total Orders: {orders.length}</Text>
+        <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>Total Revenue: LKR {(totalRevenue / 100).toFixed(2)}</Text>
         
         {Object.entries(ordersByStatus).map(([status, statusOrders]) => (
-          <Text key={status} style={styles.item}>
+          <Text key={status} style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>
             {status}: {statusOrders.length} orders
           </Text>
         ))}
@@ -168,11 +168,11 @@ const MealsReport = ({ meals }) => {
   return (
     <>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Meal Summary</Text>
-        <Text style={styles.item}>Total Meals: {meals.length}</Text>
+        <Text style={[styles.sectionTitle, { marginBottom: 8 }]}>Meal Summary</Text>
+        <Text style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>Total Meals: {meals.length}</Text>
         
         {Object.entries(mealsByType).map(([type, typeMeals]) => (
-          <Text key={type} style={styles.item}>
+          <Text key={type} style={{ fontSize: 10, color: '#374151', marginBottom: 4 }}>
             {type}: {typeMeals.length} meals
           </Text>
         ))}
@@ -268,7 +268,7 @@ const ReportGenerator = () => {
         </div>
         
         <div>
-          <label className="block text-sm text-gray-400 mb-1">From Date</label>
+          <label className="block mb-2 font-medium">From Date</label>
           <input
             type="date"
             name="from"
@@ -279,11 +279,13 @@ const ReportGenerator = () => {
         </div>
         
         <div>
-          <label className="block text-sm text-gray-400 mb-1">To Date</label>
+          <label className="block mb-2 font-medium">To Date</label>
           <input
             type="date"
             name="to"
             value={dateRange.to}
+            min={dateRange.from} // disables dates before fromDate
+            max={new Date().toISOString().split('T')[0]} // disables future dates
             onChange={handleDateChange}
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white"
           />

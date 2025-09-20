@@ -169,7 +169,7 @@ const SupplierDashboard = () => {
                     <div className="bg-gray-750 p-4 flex justify-between items-center">
                       <div>
                         <div className="text-sm text-gray-400">
-                          Order #{order._id.substring(order._id.length - 6)}
+                          Order {order.orderId || `#${order._id.substring(order._id.length - 6)}`}
                         </div>
                         <div className="text-white font-medium">
                           {formatDate(order.createdAt)}
