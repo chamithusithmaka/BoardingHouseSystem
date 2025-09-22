@@ -98,7 +98,7 @@ const PropertyDetailPage = () => {
   // Format price
   const formatPrice = (price) => {
     if (!price || !price.amount) return 'Price not specified';
-    return `₱${price.amount.toLocaleString()} / ${price.period || 'month'}`;
+    return `LKR:${price.amount.toLocaleString()} / ${price.period || 'month'}`;
   };
 
   // Generate a placeholder image if no images are available

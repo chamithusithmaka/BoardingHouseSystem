@@ -22,7 +22,7 @@ exports.createOrder = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     // Extract query parameters for filtering
-    const { status, contactPhone, roomNo, startDate, endDate } = req.query;
+    const { status, contactPhone, roomNo, userId, startDate, endDate } = req.query; // add userId
     
     // Build query object
     const query = {};
@@ -39,6 +39,7 @@ exports.getAllOrders = async (req, res) => {
     if (roomNo) {
       query.roomNo = { $regex: roomNo, $options: 'i' };
     }
+ 
     
     // Date range filter
     if (startDate || endDate) {

@@ -44,16 +44,30 @@ const MealCheckoutPage = () => {
   // Auto-fill room number from user's assigned room
   useEffect(() => {
     // Only fetch if roomNo is not already set
-    if (contactInfo.roomNo || !user?.id) return;
+    if (contactInfo.roomNo) return;
+
+    // Try to get roomId from sessionStorage
+    const storedRoomId = sessionStorage.getItem('roomId');
+    if (storedRoomId) {
+      setContactInfo(prev => ({
+        ...prev,
+        roomNo: storedRoomId
+      }));
+      return;
+    }
+
+    // Fallback: fetch from API if not in sessionStorage
+    if (!user?.id) return;
     const fetchRoomNumber = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/rooms/user/${user.id}/room`);
-        const roomNumber = response.data?.data?.room?.roomNumber;
-        if (roomNumber) {
+        const roomId = response.data?.data?.room?.roomId;
+        if (roomId) {
           setContactInfo(prev => ({
             ...prev,
-            roomNo: roomNumber
+            roomNo: roomId
           }));
+          sessionStorage.setItem('roomId', roomId);
         }
       } catch (err) {
         // Optionally handle error

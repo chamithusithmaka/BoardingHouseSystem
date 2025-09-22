@@ -33,7 +33,7 @@ const MyOrdersComponent = ({ user, room }) => {
         setLoading(true);
         // We're fetching by contact phone number since that's how the order system identifies users
         const contactPhone = user.phone || '';
-        const response = await axios.get(`${API_URL}/orders?contactPhone=${contactPhone}`);
+        const response = await axios.get(`${API_URL}/orders?userId=${user.id}`);
         setOrders(response.data.data.orders || []);
       } catch (err) {
         console.error('Error fetching orders:', err);

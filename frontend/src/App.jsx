@@ -40,10 +40,16 @@ import RoomListingPage from './Pages/Rooms/RoomListingPage';
 import RoomDetailPage from './Pages/Rooms/RoomDetailPage';
 import RoomRequestForm from './Pages/Rooms/RoomRequestForm';
 import MyRoomPage from './Pages/Tenant/MyRoomPage';
+import RegisterPage from './Pages/User/RegisterPage';
+import ResetPassword from './Pages/User/ResetPassword';
 
 // Supplier Components
 import SupplierDashboard from './Supplier/Pages/Dashboard/SupplierDashboard';
+import LoginPage from './Pages/User/LoginPage';
 
+// Admin User Management Component
+import UserManagement from './Admin/Pages/Users/UserManagement';
+import UserProfile from './Pages/User/ProfilePage';
 function App() {
   return (
     <AuthProvider>
@@ -73,6 +79,9 @@ function App() {
             {/* Meal Management Routes */}
             <Route path="meals" element={<MealsList />} />
             <Route path="orders" element={<OrdersList />} />
+            
+            {/* User Management Route */}
+            <Route path="users" element={<UserManagement />} />
           </Route>
           
           {/* User Routes */}
@@ -85,10 +94,16 @@ function App() {
           <Route path="/account/room" element={<MyRoomPage />} />
           <Route path="/account/meals" element={<MealBrowsePage />} />
           <Route path="/account/meals/checkout" element={<MealCheckoutPage />} />
+          <Route path="/account/reset-password" element={<ResetPassword />} />
           
           {/* Supplier Routes */}
           <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
-          
+
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/account/profile" element={<UserProfile />} />
+
+
           {/* 404 Route */}
           <Route path="*" element={<div className="text-center p-20 text-gray-800">404 - Page Not Found</div>} />
         </Routes>
