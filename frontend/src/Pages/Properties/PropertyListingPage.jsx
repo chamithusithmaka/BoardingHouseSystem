@@ -200,10 +200,10 @@ const PropertyListingPage = () => {
                     className="w-full md:w-48 p-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 appearance-none"
                   >
                     <option value="">All Price Ranges</option>
-                    <option value="0-5000">₱0 - ₱5,000</option>
-                    <option value="5000-10000">₱5,000 - ₱10,000</option>
-                    <option value="10000-15000">₱10,000 - ₱15,000</option>
-                    <option value="15000-999999">₱15,000+</option>
+                    <option value="0-5000">LKR:0 - LKR:5,000</option>
+                    <option value="5000-10000">LKR:5,000 - LKR:10,000</option>
+                    <option value="10000-15000">LKR:10,000 - LKR:15,000</option>
+                    <option value="15000-999999">LKR:15,000+</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <FaFilter className="text-gray-400" />
@@ -322,7 +322,7 @@ const PropertyListingPage = () => {
                         <div className="flex justify-between items-center border-t border-gray-700 pt-4">
                           <div>
                             <p className="text-amber-400 font-bold">
-                              ₱{property.lowestPrice.toLocaleString()}
+                              LKR:{property.lowestPrice.toLocaleString()}
                               <span className="text-gray-400 text-xs font-normal"> / month</span>
                             </p>
                           </div>

@@ -3,19 +3,30 @@ import { createContext, useState, useEffect, useContext } from 'react';
 // Create the context
 const AuthContext = createContext();
 
+// Hard-coded Sri Lankan tenant user data
+const TEMP_USER = {
+  //user456
+  id: 'user123',
+  name: 'Chamithu Sithmaka',
+  email: 'user123456@gmail.com',
+  role: 'tenant', // tenant role for regular user
+  location: 'Colombo, Sri Lanka',
+  avatar: 'https://randomuser.me/api/portraits/men/85.jpg'
+};
+
 // Provider component
 export const AuthProvider = ({ children }) => {
   // Try to load user from localStorage first
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null; // No mock data, default to null
+    return storedUser ? JSON.parse(storedUser) : TEMP_USER;
   });
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const storedAuthStatus = localStorage.getItem('isAuthenticated');
     return storedAuthStatus === 'true';
   });
 
-  // Mock login function (now connects to real data)
+  // Mock login function
   const login = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
@@ -41,12 +52,14 @@ export const AuthProvider = ({ children }) => {
 
   // This effect would normally check if the user is already logged in
   useEffect(() => {
-    // On initial load, if no user in localStorage, do nothing (no mock data)
+    // On initial load, if no user in localStorage, set TEMP_USER as logged-in user
     const storedUser = localStorage.getItem('user');
     const storedAuthStatus = localStorage.getItem('isAuthenticated');
     if (!storedUser || storedAuthStatus !== 'true') {
-      setUser(null);
-      setIsAuthenticated(false);
+      localStorage.setItem('user', JSON.stringify(TEMP_USER));
+      localStorage.setItem('isAuthenticated', 'true');
+      setUser(TEMP_USER);
+      setIsAuthenticated(true);
     }
   }, []);
 

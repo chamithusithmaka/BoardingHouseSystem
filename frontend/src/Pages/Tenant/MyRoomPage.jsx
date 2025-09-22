@@ -56,6 +56,11 @@ const MyRoomPage = () => {
         setRoom(response.data.data.room);
         setTenant(response.data.data.tenant);
 
+        // Store roomId (e.g., SLI-102) in sessionStorage
+        if (response.data.data.room && response.data.data.room.roomId) {
+          sessionStorage.setItem('roomId', response.data.data.room.roomId);
+        }
+
         // Auto-fill room number in contactInfo if available
         if (response.data.data.room && response.data.data.room.roomNumber) {
           setContactInfo(prev => ({

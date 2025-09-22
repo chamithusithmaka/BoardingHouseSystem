@@ -865,6 +865,143 @@ class EmailService {
       throw error;
     }
   }
+
+  /**
+   * Send registration confirmation email
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - User's name
+   * @returns {Promise<Object>} - Nodemailer send result
+   */
+  async sendRegistrationConfirmationEmail({ email, name }) {
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Registration in Progress - Awaiting Approval`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #f39c12; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Registration in Progress</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>Thank you for registering with our Boarding House System.</p>
+            <p>Your registration is currently being reviewed by our administrators. You will receive an email notification when your account has been approved.</p>
+            <p>Please note that you will not be able to log in until your account has been approved.</p>
+            <p>If you have any questions, please contact our administrative team.</p>
+            <p>Thank you for your patience.</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Registration confirmation email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending registration confirmation email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send account approval email
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - User's name
+   * @returns {Promise<Object>} - Nodemailer send result
+   */
+  async sendAccountApprovedEmail({ email, name }) {
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Your Account Has Been Approved`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #2ecc71; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Account Approved</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>Great news! Your account registration has been approved.</p>
+            <p>You can now log in to the Boarding House System using your email and password.</p>
+            <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Account approved email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending account approved email:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send account rejection email
+   * @param {Object} options - Email options
+   * @param {string} options.email - Recipient email
+   * @param {string} options.name - User's name
+   * @param {string} options.reason - Rejection reason
+   * @returns {Promise<Object>} - Nodemailer send result
+   */
+  async sendAccountRejectedEmail({ email, name, reason }) {
+    const mailOptions = {
+      from: `"Boarding House System" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Regarding Your Account Registration`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+          <div style="text-align: center; padding: 10px 0; background-color: #e74c3c; color: white; border-radius: 5px 5px 0 0;">
+            <h2>Account Registration Update</h2>
+          </div>
+          <div style="padding: 20px 0;">
+            <p>Dear <strong>${name}</strong>,</p>
+            <p>We have reviewed your account registration for the Boarding House System.</p>
+            <p>Unfortunately, we are unable to approve your registration at this time.</p>
+            ${reason ? `
+            <div style="background-color: #f8f9fa; border-left: 4px solid #e74c3c; padding: 15px; margin: 20px 0;">
+              <p><strong>Reason:</strong> ${reason}</p>
+            </div>
+            ` : ''}
+            <p>If you believe this was in error or would like to provide additional information, please contact our administrative team.</p>
+            <p>Best regards,</p>
+            <p>Boarding House Management</p>
+          </div>
+          <div style="text-align: center; padding: 15px 0; border-top: 1px solid #ddd; color: #777; font-size: 12px;">
+            <p>This is an automated message, please do not reply directly to this email.</p>
+            <p>&copy; ${new Date().getFullYear()} Boarding House Management System</p>
+          </div>
+        </div>
+      `
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log(`Account rejected email sent to ${email}: ${result.messageId}`);
+      return result;
+    } catch (error) {
+      console.error('Error sending account rejected email:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new EmailService();

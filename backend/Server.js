@@ -11,7 +11,7 @@ const roomRoutes = require('./Room/Routes/RoomRoutes');
 const attendanceRoutes = require('./Tenant/Routes/AttendanceRoutes'); // New import
 const orderRoutes = require('./Tenant/Routes/OrderRoutes');
 const mealRoutes = require('./Tenant/Routes/MealRoutes');
-
+const UserRoutes = require('./User/routes/UserRoutes'); // New import
 dotenv.config();
 
 const app = express();
@@ -40,7 +40,7 @@ app.use('/api/feedback', require('./Tenant/Routes/FeedbackRoutes')); // New rout
 app.use('/api/orders', orderRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/notifications', require('./Supplier/Routes/NotificationRoutes'));
-
+app.use('/api/users', UserRoutes); // New route registration
 // Start server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
