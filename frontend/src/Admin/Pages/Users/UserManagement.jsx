@@ -642,12 +642,12 @@ const UserManagement = () => {
                             <p className="font-medium">{selectedUser.alcoholic ? 'Yes' : 'No'}</p>
                           </div>
                         </div>
-                        <div className="col-span-2">
+                        {/* <div className="col-span-2">
                           <p className="text-gray-400 text-sm">Food Allergies</p>
                           <p className="font-medium">
                             {selectedUser.foodAllergies || 'None specified'}
                           </p>
-                        </div>
+                        </div> */}
                         <div className="col-span-2">
                           <p className="text-gray-400 text-sm">Medical Conditions</p>
                           <p className="font-medium">

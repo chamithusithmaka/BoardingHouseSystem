@@ -804,7 +804,7 @@ const ProfilePage = () => {
                         {/* Text Areas */}
                         <div className="mt-6 space-y-5">
                           {/* Food Allergies */}
-                          <div>
+                          {/* <div>
                             <label className="block text-gray-400 text-sm mb-1" htmlFor="foodAllergies">
                               Food Allergies
                             </label>
@@ -823,7 +823,7 @@ const ProfilePage = () => {
                                 {tenantProfile.foodAllergies || 'None specified'}
                               </div>
                             )}
-                          </div>
+                          </div> */}
                           
                           {/* Medical Conditions */}
                           <div>

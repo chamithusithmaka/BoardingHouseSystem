@@ -845,7 +845,7 @@ const RegisterPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            {/* <div>
               <label className="block text-white mb-1">Food Allergies</label>
               <textarea
                 name="foodAllergies"
@@ -855,7 +855,7 @@ const RegisterPage = () => {
                 className="w-full bg-gray-700 text-white border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:border-amber-500"
                 placeholder="List any food allergies"
               ></textarea>
-            </div>
+            </div> */}
             <div>
               <label className="block text-white mb-1">Medical Conditions</label>
               <textarea
