@@ -36,9 +36,6 @@ const TenantAttendanceDetail = () => {
   const [showFinanceAlert, setShowFinanceAlert] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   
-  // Get today's date string for max attribute
-  const todayStr = new Date().toISOString().split('T')[0];
-  
   // Fetch tenant details and attendance
   useEffect(() => {
     const fetchTenantData = async () => {
@@ -131,26 +128,9 @@ const TenantAttendanceDetail = () => {
     }
   };
   
-  // Update handleDateChange to include validation
+  // Handle date range changes
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-
-    // When changing start date, ensure end date is not before it
-    if (name === 'startDate' && value > dateRange.endDate) {
-      setDateRange({
-        startDate: value,
-        endDate: value // Set end date equal to start date if it would be invalid
-      });
-      return;
-    }
-
-    // When changing end date, ensure it's not before start date
-    if (name === 'endDate' && value < dateRange.startDate) {
-      // Don't allow invalid selection
-      return;
-    }
-
-    // Otherwise, update normally
     setDateRange(prev => ({
       ...prev,
       [name]: value
@@ -346,52 +326,7 @@ const TenantAttendanceDetail = () => {
             </div>
             
             {/* Date Range Filter */}
-<<<<<<< Updated upstream
-            <div className="bg-gray-800 rounded-lg p-4 mb-6">
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="flex items-center">
-                  <FaFilter className="text-amber-500 mr-2" />
-                  <span className="text-gray-300 mr-3">Filter by Date:</span>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
-                  <div className="flex flex-col">
-                    <label className="text-sm text-gray-400 mb-1">Start Date</label>
-                    <input
-                      type="date"
-                      name="startDate"
-                      value={dateRange.startDate}
-                      onChange={handleDateChange}
-                      max={todayStr} // Prevent future dates
-                      className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
-                    />
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <label className="text-sm text-gray-400 mb-1">End Date</label>
-                    <input
-                      type="date"
-                      name="endDate"
-                      value={dateRange.endDate}
-                      onChange={handleDateChange}
-                      min={dateRange.startDate} // Prevent end date before start date
-                      max={todayStr} // Prevent future dates
-                      className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
-                    />
-                  </div>
-                </div>
-                
-                <button
-                  onClick={applyDateFilter}
-                  className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded flex items-center justify-center transition-colors"
-                >
-                  Apply Filter
-                </button>
-              </div>
-            </div>
-=======
             <DateFilter dateRange={dateRange} setDateRange={setDateRange} />
->>>>>>> Stashed changes
             
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">

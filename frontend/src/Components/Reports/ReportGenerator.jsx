@@ -214,12 +214,30 @@ const ReportGenerator = () => {
   const [reportData, setReportData] = useState(null);
   const [error, setError] = useState(null);
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    setDateRange({
-      ...dateRange,
-      [name]: value
-    });
+
+    // Clamp to today (no future dates)
+    const valueClamped = value > todayStr ? todayStr : value;
+
+    if (name === "from") {
+      // If new start date is after current end date, push end date up to start date
+      const nextFrom = valueClamped;
+      const nextTo = dateRange.to < nextFrom ? nextFrom : dateRange.to;
+      setDateRange({
+        from: nextFrom,
+        to: nextTo,
+      });
+    } else if (name === "to") {
+      // End date can't be before start date, can't be in the future
+      const nextTo = valueClamped < dateRange.from ? dateRange.from : valueClamped;
+      setDateRange({
+        ...dateRange,
+        to: nextTo,
+      });
+    }
   };
 
   const fetchReportData = async () => {
@@ -275,7 +293,7 @@ const ReportGenerator = () => {
             value={dateRange.from}
             onChange={handleDateChange}
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white"
-            max={new Date().toISOString().split('T')[0]}
+            max={todayStr}
           />
         </div>
         
@@ -287,7 +305,8 @@ const ReportGenerator = () => {
             value={dateRange.to}
             onChange={handleDateChange}
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white"
-            max={new Date().toISOString().split('T')[0]}
+            min={dateRange.from}
+            max={todayStr}
           />
         </div>
       </div>
