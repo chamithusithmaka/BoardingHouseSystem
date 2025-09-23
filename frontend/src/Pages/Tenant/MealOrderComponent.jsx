@@ -5,6 +5,7 @@ import {
   FaSpinner, FaTimes, FaCheckCircle, FaStar, FaFilter 
 } from 'react-icons/fa';
 import Modal from '../../Components/Common/Modal';
+import { useAuth } from '../../Context/AuthContext';
 
 // Base API URL
 const API_URL = 'http://localhost:5000/api';
@@ -25,6 +26,8 @@ const MealOrderComponent = ({ isOpen, onClose, user, room, onOrderPlaced }) => {
     notes: ''
   });
 
+  const { isAuthenticated } = useAuth();
+
   // Fetch all active meals
   useEffect(() => {
     const fetchMeals = async () => {
@@ -44,6 +47,12 @@ const MealOrderComponent = ({ isOpen, onClose, user, room, onOrderPlaced }) => {
 
     fetchMeals();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCart([]); // Clear cart when logged out
+    }
+  }, [isAuthenticated]);
 
   // Handle filter changes
   const handleFilterChange = (e) => {

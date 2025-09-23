@@ -30,7 +30,8 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
     localStorage.removeItem('user');
     localStorage.removeItem('isAuthenticated');
-    localStorage.removeItem('room'); // Clear cached room info
+    localStorage.removeItem('room');
+    localStorage.removeItem('cart'); // <-- Add this line to clear cart
   };
 
   // Add updateUserProfile function

@@ -275,6 +275,7 @@ const ReportGenerator = () => {
             value={dateRange.from}
             onChange={handleDateChange}
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white"
+            max={new Date().toISOString().split('T')[0]}
           />
         </div>
         
@@ -284,10 +285,9 @@ const ReportGenerator = () => {
             type="date"
             name="to"
             value={dateRange.to}
-            min={dateRange.from} // disables dates before fromDate
-            max={new Date().toISOString().split('T')[0]} // disables future dates
             onChange={handleDateChange}
             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white"
+            max={new Date().toISOString().split('T')[0]}
           />
         </div>
       </div>
