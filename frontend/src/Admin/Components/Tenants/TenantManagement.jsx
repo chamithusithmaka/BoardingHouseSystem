@@ -20,6 +20,11 @@ const TenantManagement = ({ roomId, onUpdate }) => {
     notes: ''
   });
   const [editingTenant, setEditingTenant] = useState(null);
+  const [tenantFieldErrors, setTenantFieldErrors] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
 
   // Fetch room data
   useEffect(() => {
@@ -46,11 +51,17 @@ const TenantManagement = ({ roomId, onUpdate }) => {
     e.preventDefault();
     
     try {
-      await axios.post(`${API_URL}/rooms/${roomId}/tenants`, newTenant);
+      // Make sure we have an _id by using either userId or generating a unique ID
+      const tenantData = {
+        ...newTenant,
+        _id: newTenant.userId || `tenant_${Date.now()}` // Use userId as _id if provided, or generate a unique ID
+      };
+      
+      await axios.post(`${API_URL}/rooms/${roomId}/tenants`, tenantData);
       
       // Reset form and refresh data
       setNewTenant({
-        userId: '', // Reset this field
+        userId: '',
         name: '',
         email: '',
         phone: '',
@@ -89,7 +100,13 @@ const TenantManagement = ({ roomId, onUpdate }) => {
     e.preventDefault();
     
     try {
-      await axios.patch(`${API_URL}/rooms/${roomId}/tenants/${editingTenant._id}`, editingTenant);
+      // Make sure the _id field exists
+      const tenantData = {
+        ...editingTenant,
+        _id: editingTenant._id || editingTenant.userId || `tenant_${Date.now()}`
+      };
+      
+      await axios.patch(`${API_URL}/rooms/${roomId}/tenants/${tenantData._id}`, tenantData);
       
       // Reset form and refresh data
       setEditingTenant(null);
@@ -135,6 +152,41 @@ const TenantManagement = ({ roomId, onUpdate }) => {
     }
   };
   
+  const validateTenantFields = (tenant) => {
+    const errors = { name: '', email: '', phone: '' };
+    let isValid = true;
+
+    // Name: only letters and spaces, required
+    if (!tenant.name.trim()) {
+      errors.name = 'Name is required';
+      isValid = false;
+    } else if (!/^[A-Za-z\s]+$/.test(tenant.name)) {
+      errors.name = 'Name can only contain letters and spaces';
+      isValid = false;
+    }
+
+    // Email: if provided, must be valid
+    if (tenant.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(tenant.email)) {
+        errors.email = 'Please enter a valid email';
+        isValid = false;
+      }
+    }
+
+    // Phone: if provided, must be 10 digits
+    if (tenant.phone) {
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(tenant.phone)) {
+        errors.phone = 'Please enter a valid 10-digit phone number';
+        isValid = false;
+      }
+    }
+
+    setTenantFieldErrors(errors);
+    return isValid;
+  };
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center p-6">
@@ -175,16 +227,7 @@ const TenantManagement = ({ roomId, onUpdate }) => {
       
       {/* Search and add tenant button */}
       <div className="flex items-center justify-between mb-4">
-        <div className="relative flex-grow max-w-md">
-          <FaSearch className="absolute left-3 top-3 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search tenants..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full p-2 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        
         
         {!showAddForm && room.occupants?.length < room.capacity && (
           <button
@@ -225,10 +268,17 @@ const TenantManagement = ({ roomId, onUpdate }) => {
                 <input
                   type="text"
                   value={newTenant.name}
-                  onChange={(e) => setNewTenant({...newTenant, name: e.target.value})}
+                  onChange={e => {
+                    // Only allow letters and spaces
+                    const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                    setNewTenant({ ...newTenant, name: value });
+                  }}
                   className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+                {tenantFieldErrors.name && (
+                  <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.name}</p>
+                )}
               </div>
               
               <div>
@@ -236,9 +286,18 @@ const TenantManagement = ({ roomId, onUpdate }) => {
                 <input
                   type="text"
                   value={newTenant.phone}
-                  onChange={(e) => setNewTenant({...newTenant, phone: e.target.value})}
+                  onChange={e => {
+                    // Only allow numbers, max 10 digits
+                    let value = e.target.value.replace(/[^0-9]/g, '');
+                    if (value.length > 10) value = value.slice(0, 10);
+                    setNewTenant({ ...newTenant, phone: value });
+                  }}
+                  maxLength={10}
                   className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {tenantFieldErrors.phone && (
+                  <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.phone}</p>
+                )}
               </div>
             </div>
             
@@ -247,13 +306,17 @@ const TenantManagement = ({ roomId, onUpdate }) => {
               <input
                 type="email"
                 value={newTenant.email}
-                onChange={(e) => setNewTenant({...newTenant, email: e.target.value})}
+                onChange={e => {
+                  // Only allow a-z, A-Z, 0-9, @ and .
+                  const value = e.target.value.replace(/[^a-zA-Z0-9@.]/g, '');
+                  setNewTenant({ ...newTenant, email: value });
+                }}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="tenant@example.com"
               />
-              <p className="text-gray-400 text-xs mt-1">
-                The tenant will receive confirmation emails at this address
-              </p>
+              {tenantFieldErrors.email && (
+                <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.email}</p>
+              )}
             </div>
             
             <div>
@@ -330,10 +393,16 @@ const TenantManagement = ({ roomId, onUpdate }) => {
                 <input
                   type="text"
                   value={editingTenant.name}
-                  onChange={(e) => setEditingTenant({...editingTenant, name: e.target.value})}
+                  onChange={e => {
+                    const value = e.target.value.replace(/[^A-Za-z\s]/g, '');
+                    setEditingTenant({ ...editingTenant, name: value });
+                  }}
                   className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+                {tenantFieldErrors.name && (
+                  <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.name}</p>
+                )}
               </div>
               
               <div>
@@ -341,9 +410,17 @@ const TenantManagement = ({ roomId, onUpdate }) => {
                 <input
                   type="text"
                   value={editingTenant.phone || ''}
-                  onChange={(e) => setEditingTenant({...editingTenant, phone: e.target.value})}
+                  onChange={e => {
+                    let value = e.target.value.replace(/[^0-9]/g, '');
+                    if (value.length > 10) value = value.slice(0, 10);
+                    setEditingTenant({ ...editingTenant, phone: value });
+                  }}
+                  maxLength={10}
                   className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {tenantFieldErrors.phone && (
+                  <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.phone}</p>
+                )}
               </div>
             </div>
             
@@ -352,9 +429,15 @@ const TenantManagement = ({ roomId, onUpdate }) => {
               <input
                 type="email"
                 value={editingTenant.email || ''}
-                onChange={(e) => setEditingTenant({...editingTenant, email: e.target.value})}
+                onChange={e => {
+                  const value = e.target.value.replace(/[^a-zA-Z0-9@.]/g, '');
+                  setEditingTenant({ ...editingTenant, email: value });
+                }}
                 className="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {tenantFieldErrors.email && (
+                <p className="text-red-500 text-xs mt-1">{tenantFieldErrors.email}</p>
+              )}
             </div>
             
             <div>

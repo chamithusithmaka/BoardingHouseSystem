@@ -36,6 +36,9 @@ const TenantAttendanceDetail = () => {
   const [showFinanceAlert, setShowFinanceAlert] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
   
+  // Get today's date string for max attribute
+  const todayStr = new Date().toISOString().split('T')[0];
+  
   // Fetch tenant details and attendance
   useEffect(() => {
     const fetchTenantData = async () => {
@@ -128,9 +131,26 @@ const TenantAttendanceDetail = () => {
     }
   };
   
-  // Handle date range changes
+  // Update handleDateChange to include validation
   const handleDateChange = (e) => {
     const { name, value } = e.target;
+
+    // When changing start date, ensure end date is not before it
+    if (name === 'startDate' && value > dateRange.endDate) {
+      setDateRange({
+        startDate: value,
+        endDate: value // Set end date equal to start date if it would be invalid
+      });
+      return;
+    }
+
+    // When changing end date, ensure it's not before start date
+    if (name === 'endDate' && value < dateRange.startDate) {
+      // Don't allow invalid selection
+      return;
+    }
+
+    // Otherwise, update normally
     setDateRange(prev => ({
       ...prev,
       [name]: value
@@ -266,6 +286,7 @@ const TenantAttendanceDetail = () => {
                       name="startDate"
                       value={dateRange.startDate}
                       onChange={handleDateChange}
+                      max={todayStr} // Prevent future dates
                       className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
                     />
                   </div>
@@ -277,6 +298,8 @@ const TenantAttendanceDetail = () => {
                       name="endDate"
                       value={dateRange.endDate}
                       onChange={handleDateChange}
+                      min={dateRange.startDate} // Prevent end date before start date
+                      max={todayStr} // Prevent future dates
                       className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
                     />
                   </div>

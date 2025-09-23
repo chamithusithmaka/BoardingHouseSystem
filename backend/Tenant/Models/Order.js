@@ -46,10 +46,8 @@ const orderSchema = new mongoose.Schema({
 // Auto-generate orderId if not present
 orderSchema.pre('save', async function(next) {
   if (!this.orderId) {
-    // Generate a simple incremental order number (not guaranteed to be gapless)
-    const Order = this.constructor;
-    const count = await Order.countDocuments();
-    this.orderId = `ORD-${1000 + count + 1}`;
+    // Generate a unique orderId using timestamp and random number
+    this.orderId = `ORD-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
   }
   if (this.isModified('items') || this.isNew) {
     const subtotal = (this.items || []).reduce((sum, it) => sum + (it.lineTotalCents || 0), 0);
