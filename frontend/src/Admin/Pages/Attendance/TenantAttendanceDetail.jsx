@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
@@ -198,6 +198,81 @@ const TenantAttendanceDetail = () => {
     setSelectedRecord(null);
   };
   
+  // helper to get YYYY-MM-DD in local timezone
+  const toYMD = (d) => {
+    const tzOffsetMs = d.getTimezoneOffset() * 60000;
+    return new Date(d - tzOffsetMs).toISOString().slice(0, 10);
+  };
+
+  function DateFilter({ dateRange, setDateRange }) {
+    const todayStr = useMemo(() => toYMD(new Date()), []);
+
+    const handleDateChange = (e) => {
+      const { name, value } = e.target;
+      const valueClampedToToday = value > todayStr ? todayStr : value;
+
+      if (name === "startDate") {
+        const nextStart = valueClampedToToday;
+        const nextEnd =
+          dateRange.endDate && dateRange.endDate < nextStart
+            ? nextStart
+            : dateRange.endDate;
+
+        setDateRange((prev) => ({
+          ...prev,
+          startDate: nextStart,
+          endDate: nextEnd,
+        }));
+      } else if (name === "endDate") {
+        const nextEnd =
+          valueClampedToToday < dateRange.startDate
+            ? dateRange.startDate
+            : valueClampedToToday;
+
+        setDateRange((prev) => ({
+          ...prev,
+          endDate: nextEnd,
+        }));
+      }
+    };
+
+    return (
+      <div className="bg-gray-800 rounded-lg p-4 mb-6">
+        {/* <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="flex items-center">
+            <FaFilter className="text-amber-500 mr-2" />
+            <span className="text-gray-300 mr-3">Filter by Date:</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-400 mb-1">Start Date</label>
+              <input
+                type="date"
+                name="startDate"
+                value={dateRange.startDate}
+                onChange={handleDateChange}
+                max={todayStr}
+                className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm text-gray-400 mb-1">End Date</label>
+              <input
+                type="date"
+                name="endDate"
+                value={dateRange.endDate}
+                onChange={handleDateChange}
+                min={dateRange.startDate || undefined}
+                max={todayStr}
+                className="bg-gray-700 border border-gray-600 rounded p-2 text-white"
+              />
+            </div>
+          </div>
+        </div> */}
+      </div>
+    );
+  }
+  
   return (
     <>
       <div className="container mx-auto px-4 py-8">
@@ -271,6 +346,7 @@ const TenantAttendanceDetail = () => {
             </div>
             
             {/* Date Range Filter */}
+<<<<<<< Updated upstream
             <div className="bg-gray-800 rounded-lg p-4 mb-6">
               <div className="flex flex-col md:flex-row items-center gap-4">
                 <div className="flex items-center">
@@ -313,6 +389,9 @@ const TenantAttendanceDetail = () => {
                 </button>
               </div>
             </div>
+=======
+            <DateFilter dateRange={dateRange} setDateRange={setDateRange} />
+>>>>>>> Stashed changes
             
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
