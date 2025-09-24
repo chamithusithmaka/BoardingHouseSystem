@@ -437,15 +437,15 @@ const TenantAttendanceDetail = () => {
                             </div>
                           </td>
                           <td className="px-4 py-3">
-                            {record.status === 'absent' ? 'N/A' : formatTime(record.checkInTime)}
+                            {record.status === 'absent' ? 'Absent' : formatTime(record.checkInTime)}
                           </td>
                           <td className="px-4 py-3">
-                            {record.status === 'absent' ? 'N/A' : 
+                            {record.status === 'absent' ? 'Absent' : 
                               record.status === 'checked-in' ? 'Still active' : 
                               formatTime(record.checkOutTime)}
                           </td>
                           <td className="px-4 py-3">
-                            {record.status === 'absent' ? 'N/A' : formatDuration(record.duration)}
+                            {record.status === 'absent' ? 'Absent' : formatDuration(record.duration)}
                           </td>
                           <td className="px-4 py-3">
                             {record.exceededHours > 0 ? (
