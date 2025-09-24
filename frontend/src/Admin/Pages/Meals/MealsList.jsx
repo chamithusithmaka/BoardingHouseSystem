@@ -350,10 +350,10 @@ const MealsList = ({ userRole = "admin" }) => {
     });
   };
 
-  // Get price for a specific size
+  // Update getPriceForSize to return empty string if price is 0
   const getPriceForSize = (meal, size) => {
     const sizePrice = meal.sizePrices?.find(sp => sp.size === size);
-    return sizePrice ? formatPrice(sizePrice.priceCents) : 'N/A';
+    return sizePrice && sizePrice.priceCents > 0 ? formatPrice(sizePrice.priceCents) : '';
   };
 
   // Get available sizes for a meal
@@ -760,7 +760,7 @@ const MealsList = ({ userRole = "admin" }) => {
                     <thead>
                       <tr className="bg-gray-700">
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-400">Size</th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-400">Price ($)</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-400">Price (LKR:)</th>
                         <th className="px-4 py-2 text-left text-xs font-medium text-gray-400">Default</th>
                       </tr>
                     </thead>
@@ -773,7 +773,7 @@ const MealsList = ({ userRole = "admin" }) => {
                             <td className="px-4 py-3">
                               <input
                                 type="number"
-                                value={(sizePrice?.priceCents || 0) / 100}
+                                value={sizePrice?.priceCents > 0 ? (sizePrice.priceCents / 100) : ''}
                                 onChange={(e) => handleSizePriceChange(size, e.target.value)}
                                 step="0.01"
                                 min="0"
