@@ -50,7 +50,7 @@ const ExpenseTrackingComponent = ({ userId }) => {
     labels: expenses.map((expense) => expense.mealType),
     datasets: [
       {
-        label: 'Total Spent ($)',
+        label: 'Total Spent (LKR)',
         data: expenses.map((expense) => expense.totalSpentCents / 100), // Convert cents to dollars
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'], // Colors for bars
         borderColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],

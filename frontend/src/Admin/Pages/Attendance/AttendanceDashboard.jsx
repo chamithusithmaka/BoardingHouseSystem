@@ -6,6 +6,7 @@ import {
   FaUserTimes, FaExclamationTriangle, FaSearch, 
   FaSpinner, FaEye, FaCog, FaChartBar, FaDownload, FaUser
 } from 'react-icons/fa';
+import AttendanceReportButton from '../../../Components/Reports/AttendanceReportGenerator';
 
 // Base API URL
 const API_URL = 'http://localhost:5000/api';
@@ -233,13 +234,12 @@ const AttendanceDashboard = () => {
             </div>
           </div>
           
-          <button
-            onClick={exportToCSV}
-            disabled={!filteredSummary.length}
+          {/* Replace the Export CSV button with this PDF button */}
+          <AttendanceReportButton 
+            attendanceData={filteredSummary} 
+            dateRange={dateRange}
             className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FaDownload className="mr-2" /> Export CSV
-          </button>
+          />
         </div>
       </div>
       

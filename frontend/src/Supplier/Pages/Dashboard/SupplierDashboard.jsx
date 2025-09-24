@@ -308,12 +308,17 @@ const SupplierDashboard = () => {
                     Recipient Email
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     name="recipientEmail"
                     value={notification.recipientEmail}
-                    onChange={handleNotifyChange}
+                    onChange={e => {
+                      // Only allow @ and . characters
+                      const value = e.target.value.replace(/[^@.]/g, '');
+                      setNotification({ ...notification, recipientEmail: value });
+                    }}
                     required
                     className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="Enter @ or . only"
                   />
                 </div>
 

@@ -549,6 +549,7 @@ const MyRoomPage = () => {
             onClose={() => setIsMoveOutModalOpen(false)}
             room={room}
             tenant={tenant}
+            user={user} // Add this to provide user data
             onMoveOut={() => {
               setIsMoveOutModalOpen(false);
               window.location.reload();

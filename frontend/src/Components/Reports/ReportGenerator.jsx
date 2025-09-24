@@ -130,7 +130,7 @@ const OrdersReport = ({ orders }) => {
         <Text style={styles.sectionTitle}>Recent Orders</Text>
         
         <View style={[styles.itemContainer, styles.bold]}>
-          <Text style={[styles.item, { flex: 2 }]}>ID</Text>
+          <Text style={[styles.item, { flex: 2 }]}>Order ID</Text>
           <Text style={styles.item}>Customer</Text>
           <Text style={styles.item}>Date</Text>
           <Text style={styles.item}>Status</Text>
@@ -140,7 +140,7 @@ const OrdersReport = ({ orders }) => {
         {orders.slice(0, 20).map((order) => (
           <View key={order._id} style={styles.itemContainer}>
             <Text style={[styles.item, { flex: 2 }]}>
-              #{order._id.substring(order._id.length - 6)}
+              {order.orderId ? order.orderId : `#${order._id.substring(order._id.length - 6)}`}
             </Text>
             <Text style={styles.item}>{order.contactName}</Text>
             <Text style={styles.item}>

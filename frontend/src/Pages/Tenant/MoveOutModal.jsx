@@ -8,7 +8,7 @@ import {
 // Base API URL
 const API_URL = 'http://localhost:5000/api';
 
-const MoveOutModal = ({ isOpen, onClose, room, tenant, onMoveOut }) => {
+const MoveOutModal = ({ isOpen, onClose, room, tenant, user, onMoveOut }) => {
   const [reason, setReason] = useState('');
   const [moveOutDate, setMoveOutDate] = useState('');
   const [confirming, setConfirming] = useState(false);
@@ -48,8 +48,10 @@ const MoveOutModal = ({ isOpen, onClose, room, tenant, onMoveOut }) => {
       
       // Call API to request move-out
       await axios.post(`${API_URL}/rooms/${room._id}/moveout`, {
-        userId: tenant?.userId || 'user456', // Use actual user ID if available
-        tenantId: tenant?._id, // This helps identify the tenant in the room
+        userId: tenant?.userId || user?.id,  // Now user is defined
+        tenantId: tenant?._id,
+        name: tenant?.name || user?.name,
+        email: tenant?.email || user?.email,
         reason,
         moveOutDate,
         notes: 'Submitted through the tenant portal'

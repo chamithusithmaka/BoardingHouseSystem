@@ -333,8 +333,8 @@ const RoomRequestList = () => {
               <div className="flex justify-between mb-2">
                 <span className="text-gray-400">Room:</span>
                 <span className="text-white">
-                  {typeof requestToDelete.roomId === 'object' 
-                    ? (requestToDelete.roomId.roomId || `Room ${requestToDelete.roomId.roomNumber}`) 
+                  {typeof requestToDelete.roomId === 'object' && requestToDelete.roomId
+                    ? (requestToDelete.roomId.roomId || `Room ${requestToDelete.roomId.roomNumber}`)
                     : 'Unknown Room'}
                 </span>
               </div>

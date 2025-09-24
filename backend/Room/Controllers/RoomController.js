@@ -837,7 +837,7 @@ const updateRoomStatus = (room) => {
 exports.requestMoveOut = async (req, res) => {
   try {
     const { id: roomId } = req.params;
-    const { tenantId, reason, moveOutDate } = req.body;
+    const { userId, tenantId, reason, moveOutDate } = req.body;
     
     // Find room
     const room = await Room.findById(roomId);
@@ -849,13 +849,29 @@ exports.requestMoveOut = async (req, res) => {
       });
     }
     
-    // Find tenant in the room
-    const tenantIndex = room.occupants.findIndex(
-      tenant => tenant.name === 'Chamithu Sithmaka' || 
-                tenant.email === 'chamith@example.com'
+    // Find tenant in the room using dynamic values from request
+    const tenantIndex = room.occupants.findIndex(tenant => 
+      // Try multiple tenant identifiers to improve matching
+      (tenant._id && tenant._id.toString() === tenantId) ||
+      (tenant.userId && tenant.userId === userId) ||
+      (tenant.email && req.body.email && tenant.email === req.body.email) ||
+      (tenant.name && req.body.name && tenant.name === req.body.name)
     );
     
     if (tenantIndex === -1) {
+      console.log("Could not find tenant in room:", {
+        roomId,
+        tenantId,
+        userId,
+        email: req.body.email,
+        tenants: room.occupants.map(t => ({
+          _id: t._id,
+          userId: t.userId,
+          name: t.name,
+          email: t.email
+        }))
+      });
+      
       return res.status(404).json({
         status: 'fail',
         message: 'Tenant not found in this room'
